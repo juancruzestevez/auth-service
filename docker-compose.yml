@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    restart: always
+    container_name: auth-service-postgres
+    env_file:
+      - .env
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: auth-service-go-app
+    env_file:
+      - .env
+    ports:
+      - '8080:8080'
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:
