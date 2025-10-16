@@ -7,6 +7,9 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/joho/godotenv"
+	"github.com/juancruzestevez/auth-service/db"
+	"github.com/juancruzestevez/auth-service/models"
+	"github.com/juancruzestevez/auth-service/routes"
 )
 
 func main() {
@@ -20,11 +23,16 @@ func main() {
 		port = "3000"
 	}
 
+	db.DBConnection()
+
+	db.DB.AutoMigrate(models.User{})
+
 	r := mux.NewRouter()
 
-	r.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte("Hello World"))
-	})
+	r.HandleFunc("/users", routes.GetUserHandler).Methods("GET")
+	r.HandleFunc("/users/{id}", routes.GetUserHandler).Methods("GET")
+	r.HandleFunc("/users", routes.PostUsersHandler).Methods("POST")
+	r.HandleFunc("/users/{id}", routes.DeleteUsersHandler).Methods("DELETE")
 
 	log.Printf("Server starting on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/test_direct.go">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/test_direct.go" />
+              <option name="updatedContent" value="package main&#10;&#10;import (&#10;&#9;&quot;fmt&quot;&#10;&#9;&quot;log&quot;&#10;&#10;&#9;&quot;gorm.io/driver/postgres&quot;&#10;&#9;&quot;gorm.io/gorm&quot;&#10;)&#10;&#10;func main() {&#10;&#9;// Test direct connection with hardcoded values&#10;&#9;dsn := &quot;host=127.0.0.1 user=postgres password=postgres123 dbname=auth_service port=5432 sslmode=disable TimeZone=UTC&quot;&#10;&#9;&#10;&#9;fmt.Printf(&quot;Testing connection with DSN: %s\n&quot;, dsn)&#10;&#9;&#10;&#9;db, err := gorm.Open(postgres.Open(dsn), &amp;gorm.Config{})&#10;&#9;if err != nil {&#10;&#9;&#9;log.Printf(&quot;Failed to connect: %v&quot;, err)&#10;&#9;} else {&#10;&#9;&#9;log.Println(&quot;Connection successful!&quot;)&#10;&#9;&#9;&#10;&#9;&#9;// Test the connection with a simple query&#10;&#9;&#9;var result struct {&#10;&#9;&#9;&#9;Version string&#10;&#9;&#9;}&#10;&#9;&#9;db.Raw(&quot;SELECT version() as version&quot;).Scan(&amp;result)&#10;&#9;&#9;fmt.Printf(&quot;PostgreSQL version: %s\n&quot;, result.Version)&#10;&#9;}&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/test_env.go">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/test_env.go" />
+              <option name="updatedContent" value="package main&#10;&#10;import (&#10;&#9;&quot;fmt&quot;&#10;&#9;&quot;log&quot;&#10;&#9;&quot;os&quot;&#10;&#10;&#9;&quot;github.com/joho/godotenv&quot;&#10;)&#10;&#10;func main() {&#10;&#9;err := godotenv.Load()&#10;&#9;if err != nil {&#10;&#9;&#9;log.Printf(&quot;Error loading .env file: %v&quot;, err)&#10;&#9;}&#10;&#10;&#9;dbHost := os.Getenv(&quot;DB_HOST&quot;)&#10;&#9;dbPort := os.Getenv(&quot;DB_PORT&quot;)&#10;&#9;dbUser := os.Getenv(&quot;DB_USER&quot;)&#10;&#9;dbPassword := os.Getenv(&quot;DB_PASSWORD&quot;)&#10;&#9;dbName := os.Getenv(&quot;DB_NAME&quot;)&#10;&#10;&#9;fmt.Printf(&quot;DB_HOST: '%s'\n&quot;, dbHost)&#10;&#9;fmt.Printf(&quot;DB_PORT: '%s'\n&quot;, dbPort)&#10;&#9;fmt.Printf(&quot;DB_USER: '%s'\n&quot;, dbUser)&#10;&#9;fmt.Printf(&quot;DB_PASSWORD: '%s'\n&quot;, dbPassword)&#10;&#9;fmt.Printf(&quot;DB_NAME: '%s'\n&quot;, dbName)&#10;&#10;&#9;dsn := fmt.Sprintf(&quot;host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=UTC&quot;,&#10;&#9;&#9;dbHost, dbUser, dbPassword, dbName, dbPort)&#10;&#9;&#10;&#9;fmt.Printf(&quot;DSN: '%s'\n&quot;, dsn)&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/test_postgres.go">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/test_postgres.go" />
+              <option name="updatedContent" value="package main&#10;&#10;import (&#10;&#9;&quot;fmt&quot;&#10;&#9;&quot;log&quot;&#10;&#10;&#9;&quot;gorm.io/driver/postgres&quot;&#10;&#9;&quot;gorm.io/gorm&quot;&#10;)&#10;&#10;func main() {&#10;&#9;// Test connection to default postgres database first&#10;&#9;dsn := &quot;host=127.0.0.1 user=postgres password=postgres123 dbname=postgres port=5432 sslmode=disable TimeZone=UTC&quot;&#10;&#9;&#10;&#9;fmt.Printf(&quot;Testing connection to default postgres database...\n&quot;)&#10;&#9;&#10;&#9;db, err := gorm.Open(postgres.Open(dsn), &amp;gorm.Config{})&#10;&#9;if err != nil {&#10;&#9;&#9;log.Printf(&quot;Failed to connect to postgres DB: %v&quot;, err)&#10;&#9;} else {&#10;&#9;&#9;log.Println(&quot;Connected to postgres database successfully!&quot;)&#10;&#9;&#9;&#10;&#9;&#9;// List all databases&#10;&#9;&#9;var databases []string&#10;&#9;&#9;db.Raw(&quot;SELECT datname FROM pg_database WHERE datistemplate = false&quot;).Scan(&amp;databases)&#10;&#9;&#9;fmt.Printf(&quot;Available databases: %v\n&quot;, databases)&#10;&#9;}&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>

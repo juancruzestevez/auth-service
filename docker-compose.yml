@@ -10,7 +10,7 @@ services:
     volumes:
       - ./pgdata:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
+      - '5433:5432'
 
   app:
     build:
@@ -19,8 +19,11 @@ services:
     container_name: auth-service-go-app
     env_file:
       - .env
+    environment:
+      POSTGRES_HOST: db
+      PORT: "3000"
     ports:
-      - '8080:8080'
+      - '3000:3000'
     depends_on:
       - db
 
