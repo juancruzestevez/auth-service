@@ -4,36 +4,58 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/gorilla/mux"
-	"github.com/joho/godotenv"
+	"github.com/juancruzestevez/auth-service/config"
 	"github.com/juancruzestevez/auth-service/db"
+	"github.com/juancruzestevez/auth-service/handlers"
 	"github.com/juancruzestevez/auth-service/models"
-	"github.com/juancruzestevez/auth-service/routes"
+	"github.com/juancruzestevez/auth-service/repository"
+	"github.com/juancruzestevez/auth-service/router"
+	"github.com/juancruzestevez/auth-service/service"
 )
 
 func main() {
-	err := godotenv.Load()
-	if err != nil {
-		log.Println("Warning: .env file not found, using default values")
+	// Cargar configuración
+	cfg := config.LoadConfig()
+	log.Printf("Starting Auth Service in %s mode", cfg.Server.Env)
+
+	// Conectar a la base de datos
+	if err := db.Connect(cfg); err != nil {
+		log.Fatalf("Database connection failed: %v", err)
 	}
+	defer db.Close()
 
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "3000"
+	// Ejecutar migraciones
+	if err := db.DB.AutoMigrate(&models.User{}); err != nil {
+		log.Fatalf("Migration failed: %v", err)
 	}
+	log.Println("✓ Database migrations completed")
 
-	db.DBConnection()
+	// Inicializar capas de la aplicación
+	userRepo := repository.NewUserRepository(db.DB)
+	authService := service.NewAuthService(userRepo)
+	authHandler := handlers.NewAuthHandler(authService)
 
-	db.DB.AutoMigrate(models.User{})
+	// Configurar rutas
+	r := router.SetupRouter(authHandler)
 
-	r := mux.NewRouter()
+	// Iniciar servidor
+	log.Printf("✓ Server starting on port %s", cfg.Server.Port)
+	log.Printf("✓ API available at http://localhost:%s/api/v1", cfg.Server.Port)
 
-	r.HandleFunc("/users", routes.GetUserHandler).Methods("GET")
-	r.HandleFunc("/users/{id}", routes.GetUserHandler).Methods("GET")
-	r.HandleFunc("/users", routes.PostUsersHandler).Methods("POST")
-	r.HandleFunc("/users/{id}", routes.DeleteUsersHandler).Methods("DELETE")
+	// Graceful shutdown
+	go func() {
+		if err := http.ListenAndServe(":"+cfg.Server.Port, r); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server failed: %v", err)
+		}
+	}()
 
-	log.Printf("Server starting on port %s", port)
-	log.Fatal(http.ListenAndServe(":"+port, r))
+	// Esperar señal de terminación
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+	<-quit
+
+	log.Println("Shutting down server...")
 }
